@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 
 namespace FeatureManager.Core.Providers
 {
@@ -6,10 +7,16 @@ namespace FeatureManager.Core.Providers
     {
         private static HttpClient _client = new HttpClient();
         private readonly System.Globalization.CultureInfo _cultureInfo = new System.Globalization.CultureInfo("en-US");
+        private readonly string? _token;
+
+        public GeoLocationProvider(IConfiguration configuration)
+        {
+            _token = configuration["GeoLocToken"];
+        }
 
         public GeoLocation Provide()
         {
-            var result = _client.GetAsync($"https://ipinfo.io?token=").GetAwaiter().GetResult();
+            var result = _client.GetAsync($"https://ipinfo.io?token={_token}").GetAwaiter().GetResult();
             if (!result.IsSuccessStatusCode) return null!;
             var jObject = JObject.Parse(result.Content.ReadAsStringAsync().GetAwaiter().GetResult());
             var parts = jObject["loc"]!.ToString().Split(',');

@@ -10,6 +10,7 @@ using FeatureManager.Core.Protections;
 using FeatureManager.Core.Providers;
 using FeatureManager.Core.Translations;
 using FeatureManager.Core.ViewModels;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 var personViewModel = new PersonViewModel() 
@@ -87,6 +88,10 @@ Console.ReadKey();
 
 static ServiceProvider BuildServiceProvider()
 {
+    var configuration = new ConfigurationBuilder()
+        .AddJsonFile(ApplicationDirectory.GetCurrent() + "\\config.json")
+        .Build();
+
     var services = new ServiceCollection();
     services.AddAutoMapper((mapper) =>
     {
@@ -102,5 +107,7 @@ static ServiceProvider BuildServiceProvider()
     services.AddTransient<WhereApplier>();
     services.AddTransient<WhoApplier>();
     services.AddTransient<FeatureActionValidator>();
+    services.AddSingleton(x => configuration);
+    services.AddSingleton<IConfiguration>(x => configuration);
     return services.BuildServiceProvider();
 }
